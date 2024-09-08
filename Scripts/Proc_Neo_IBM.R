@@ -5,7 +5,6 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
   if(ncore>nsim) ncore <- nsim
   res_out<-vector("list", length = nrow(params))
   for(rn in seq_len(nrow(params))) {
-    
      parms <- list(maxAge=params[rn, "maxAge"],
                                 alpha=params[rn, "alpha"],
                                 betas=params[rn, "betas"],
@@ -28,8 +27,6 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
        out <- lapply(1:nsim, function(z){Neo.ibm(popsize, init.pop, tot.time, 
                                                  intro, ageI=ageI, parms)})
      } else {
-     
-     
      cl <- makeCluster(5)
      on.exit(stopCluster(cl))
      clusterExport(cl, varlist = c("init.pop", "tot.time", "intro", "parms"), 
@@ -38,6 +35,7 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
        source(file.path("Scripts","Neo IBM.R"))
        Neo.ibm(popsize, init.pop, tot.time, intro, ageI=ageI, parms)
      })
+     stopCluster(cl)
      }
      res <- rbindlist(out, idcol = "Iter")
      res[, N:= S + I]
