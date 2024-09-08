@@ -1,5 +1,6 @@
 proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, ncore="auto") {
   library(parallel)
+  library("cowplot")
   dir.create(dir.in, showWarnings = FALSE)
   if(ncore == "auto") ncore <- detectCores()
   if(ncore>nsim) ncore <- nsim
@@ -63,7 +64,7 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
      res_out[[rn]] <- list(new_parm, res, res_long, res_summary, p)
   }
   
-  library("cowplot")
+
   pgrid <- plot_grid(plotlist = lapply(res_out, "[[", 5),
                      labels = seq_len(nrow(params)),
                      ncol = 1)
