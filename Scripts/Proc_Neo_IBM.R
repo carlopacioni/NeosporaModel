@@ -1,28 +1,32 @@
-proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name) {
+proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, ncore="auto") {
   dir.create(dir.in, showWarnings = FALSE)
-  if(any(parms[, "maxAge"]< 4)) stop("maxAge is assumed to be 4 or more years")
-  res_out<-vector("list", length = nrow(parms))
-  for(rn in seq_len(nrow(parms))) {
+  if(ncore == "auto") ncore <- detectCores()
+  if(ncore>nsim) ncore <- nsim
+  res_out<-vector("list", length = nrow(params))
+  for(rn in seq_len(nrow(params))) {
     
-     parms <- list(maxAge=parms[rn, "maxAge"],
-                                alpha=parms[rn, "alpha"],
-                                betas=parms[rn, "betas"],
-                                betaI=parms[rn, "betaI"],
-                                rhov=parms[rn, "rhov"],
-                                delta=parms[rn, "delta"],
-                                eps=parms[rn, "eps"], 
-                                sigma=parms[rn, "sigma"],
-                                zeta=parms[rn, "zeta"],
-                                p=parms[rn, "p"],
-                                g=parms[rn, "g"],
-                                InitPrev=parms[rn, "InitPrev"],
-                                K=parms[rn, "K"])
+     parms <- list(maxAge=params[rn, "maxAge"],
+                                alpha=params[rn, "alpha"],
+                                betas=params[rn, "betas"],
+                                betaI=params[rn, "betaI"],
+                                rhov=params[rn, "rhov"],
+                                delta=params[rn, "delta"],
+                                eps=params[rn, "eps"], 
+                                sigma=params[rn, "sigma"],
+                                zeta=params[rn, "zeta"],
+                                p=params[rn, "p"],
+                                g=params[rn, "g"],
+                                InitPrev=params[rn, "InitPrev"],
+                                K=params[rn, "K"])
     
      # S, I
      init.pop<- c(parms$K * (1 - parms$InitPrev), parms$K * parms$InitPrev)
      
-     #can parallelise the following
-     #out <- lapply(1:nsim, function(z){Neo.ibm(popsize, init.pop, tot.time, intro, ageI=2, parms)})
+     if(ncore == 1) {
+       source(file.path("Scripts","Neo IBM.R"))
+       out <- lapply(1:nsim, function(z){Neo.ibm(popsize, init.pop, tot.time, 
+                                                 intro, ageI=ageI, parms)})
+     } else {
      
      library(parallel)
      cl <- makeCluster(5)
@@ -33,7 +37,7 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name) {
        source(file.path("Scripts","Neo IBM.R"))
        Neo.ibm(popsize, init.pop, tot.time, intro, ageI=ageI, parms)
      })
-     
+     }
      res <- rbindlist(out, idcol = "Iter")
      res[, N:= S + I]
      res[, Prev := I/N]
@@ -56,8 +60,8 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name) {
                                  lcl=quantile(value, 0.0275, na.rm=TRUE),
                                  ucl=quantile(value,0.975, na.rm=TRUE)), by=list(time, Parameter)]
      
-     res_out[[rn]] <- list(c(parms, intro=intro, nsim=nsim, tot.time=tot.time, ageI=ageI), 
-                           res, res_long, res_summary, p)
+     new_parm <- c(parms, intro=intro, nsim=nsim, tot.time=tot.time, ageI=ageI)
+     res_out[[rn]] <- list(new_parm, res, res_long, res_summary, p)
   }
   
   library("cowplot")
