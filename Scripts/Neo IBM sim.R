@@ -44,16 +44,37 @@ system.time(
                   root_name="sigma", ncore="auto")
 )
 
+#### sigma vs p ####
+parms <- expand.grid(list(maxAge=5,
+                          alpha=0.3,
+                          betas=0.02,
+                          betaI=0.08,
+                          rhov=0.9,
+                          delta=0.1,
+                          eps=0.1,
+                          sigma=c(0, 0.005, 0.01, 0.02),
+                          zeta=0.028,
+                          p=c(0, 0.3),
+                          g=1,
+                          InitPrev=0.3,
+                          K=1000))
+
+system.time(
+  sigma <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+                    root_name="sigmaVsP", ncore="auto")
+)
+
+
 #### No Neo ####
 parms <- expand.grid(list(maxAge=5,
                           alpha=0.3,
                           betas=0.02,
                           betaI=0.08,
-                          rhov=0.,
+                          rhov=0.9,
                           delta=0.1,
                           eps=0.1,
                           sigma=0,
-                          zeta=0.0,
+                          zeta=0.028,
                           p=0.,
                           g=1,
                           InitPrev=0.0,
@@ -63,8 +84,28 @@ system.time(
   NoNeo <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
                     root_name="NoNeo", ncore="auto")
 )
-res_NoNeo <- proc_res("PremResultsAge", parms, plot_name = "NoNeo_model_plot.png")
-res_NoNeo
+
+
+#### No Neo with intro ####
+parms <- expand.grid(list(maxAge=5,
+                          alpha=0.9, #
+                          betas=0.02,
+                          betaI=0.08,
+                          rhov=0.9,
+                          delta=0.1,
+                          eps=0.1,
+                          sigma=0,
+                          zeta=0.028,
+                          p=0.,
+                          g=1,
+                          InitPrev=0.0,
+                          K=c(300)))
+
+system.time(
+  NoNeoIntro <- proc_IBM(dir.in, intro=2, nsim, tot.time, parms, ageI=2, 
+                    root_name="NoNeoIntro", ncore="auto")
+)
+
 
 
 
