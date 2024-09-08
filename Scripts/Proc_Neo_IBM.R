@@ -1,4 +1,5 @@
 proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, ncore="auto") {
+  library(parallel)
   dir.create(dir.in, showWarnings = FALSE)
   if(ncore == "auto") ncore <- detectCores()
   if(ncore>nsim) ncore <- nsim
@@ -28,7 +29,7 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
                                                  intro, ageI=ageI, parms)})
      } else {
      
-     library(parallel)
+     
      cl <- makeCluster(5)
      on.exit(stopCluster(cl))
      clusterExport(cl, varlist = c("init.pop", "tot.time", "intro", "parms"), 
