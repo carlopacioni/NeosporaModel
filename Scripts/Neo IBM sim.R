@@ -3,14 +3,15 @@ library(ggplot2)
 
 source(file.path("Scripts","Proc_Neo_IBM.R"))
 
-intro <- 0; nsim <- 5; tot.time<- 20; dir.in <- "Results_Stochastic"
+intro <- 0; nsim <- 100; tot.time<- 20; dir.in <- "Results_Stochastic"
+#### eps ####
 parms <- expand.grid(list(maxAge=5,
                           alpha=0.3,
                           betas=0.02,
                           betaI=0.08,
                           rhov=0.9,
                           delta=0.1,
-                          eps=0.1,
+                          eps=seq(0.1, 0.4, by=0.1), # 0.095
                           sigma=0,
                           zeta=0.028,
                           p=0.3,
@@ -18,6 +19,8 @@ parms <- expand.grid(list(maxAge=5,
                           InitPrev=0.3,
                           K=1000))
 
-proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, root_name="Sigma0")
-
+system.time(
+eps <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+                   root_name="eps", ncore="auto")
+)
 debug(proc_IBM)
