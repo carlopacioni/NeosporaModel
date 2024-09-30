@@ -44,11 +44,11 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
      
      p <- ggplot(res, aes(time, Prev) ) + 
        geom_line(aes(group=Iter), col="red", alpha=0.6) + 
-       stat_summary(fun = "median", geom = "line", color = "black", size = 1.2) +
+       stat_summary(fun = "median", geom = "line", color = "black", linewidth = 1.2) +
        stat_summary(fun = quantile, fun.args = list(probs=0.0275), geom = "line", 
-                    color = "black", size = 1.2, linetype=2) +
+                    color = "black", linewidth = 1.2, linetype=2) +
        stat_summary(fun = quantile, fun.args = list(probs=0.975), geom = "line", 
-                    color = "black", size = 1.2, linetype=2) +
+                    color = "black", linewidth = 1.2, linetype=2) +
        theme(legend.position = "none")
      
      # summary stats - needs clean up
