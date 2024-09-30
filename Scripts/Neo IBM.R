@@ -136,7 +136,7 @@ keepNconstant <- function(poplist, K, p){
   npop<- length(poplist)
   theta <- K - npop
   df<- do.call('rbind', poplist)
-  # work out the proportionof offspring that are infected
+  # work out the proportion of offspring that are infected
   po <- length(df$age[df$age == 1 & df$cat == "I"]) / length(df$age[df$age == 1])
   kill.list<- NULL
   
@@ -150,7 +150,7 @@ keepNconstant <- function(poplist, K, p){
         if(poplist[[i]]$age > 1) {
           next # skip if not a calf
       } else {
-        if(clicker == abs(theta)) break  # quit the loop if we raech the target #
+        if(clicker == abs(theta)) break  # quit the loop if we reach the target #
         if(poplist[[i]]$cat == "S" & rbinom(1, 1, prob = 1 - po)) {
           poplist[[i]]$cat <- "D" # Flag to remove if is a calf, with prob 1-po if it is S
         } else {
