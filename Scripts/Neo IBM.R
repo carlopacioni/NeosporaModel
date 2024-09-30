@@ -35,6 +35,7 @@ schedule<- function(poplist, maxtime, parms, rhoh) {
     et<- NULL
     rate<- rhoh + parms$sigma
     etime<- -log(runif(1))/rate
+    if(is.na(etime)) etime <- maxtime + 1 # to prevent ot have NaN if both num and denom are 0
     if(etime < maxtime) et<- data.frame(ID=ii,type="infected",time=etime)
     et
   }
