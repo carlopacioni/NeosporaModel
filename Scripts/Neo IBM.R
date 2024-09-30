@@ -168,18 +168,22 @@ keepNconstant <- function(poplist, K, p){
 }
 #-----------------------------------------------------
 
-birth <- function(poplist, parms) {
+birth <- function(poplist, parms, maxtime) {
   poplist_temp <- list()
   counter <- 1
   for(i in seq_along(poplist)) {
     if(poplist[[i]]$age < 3) next
     if(poplist[[i]]$cat == "S") {
-      if(rbinom(1, 1, parms$alpha * (1 - parms$betas))) {
+      rate <- parms$alpha * (1 - parms$betas)
+      etime <- -log(runif(1))/rate
+      if(etime < maxtime) {
         poplist_temp[[counter]] <- data.frame(cat="S", age=1)
         counter <- counter + 1
       } 
     } else {
-      if(rbinom(1, 1, parms$alpha * (1 - parms$betaI))) {
+      rate <- parms$alpha * (1 - parms$betaI)
+      etime <- -log(runif(1))/rate
+      if(etime < maxtime) {
         poplist_temp[[counter]] <- 
           data.frame(cat=sample(c("S", "I"), size=1, prob=c(1-parms$rhov, parms$rhov)), 
                      age=1)
@@ -217,7 +221,7 @@ Neo.ibm<- function(popsize, init.pop, tot.time, intro=0, ageI=2, parms) {
     if(i == intro) pop<- add.infected(pop, ageI)
     event.list<- schedule(pop, 1, parms, rhoh)
     pop<- advance(pop, event.list)
-    offspring_pop <- birth(pop, parms)
+    offspring_pop <- birth(pop, parms, maxtime=1)
     pop <- age.animals(pop, parms)
     # combined new offspring with existing pop after aging
     pop <- c(pop, offspring_pop)
