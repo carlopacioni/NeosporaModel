@@ -17,7 +17,10 @@ fitDetNeospora <- function(dir.in,
                            p,
                            g,
                            InitPrev,
-                           K){
+                           K,
+                           c,
+                           Se,
+                           Sp){
 
 
   SI5yrEq <- function(time, state, params){
@@ -50,21 +53,25 @@ fitDetNeospora <- function(dir.in,
       po <- Io/(Io+So)
 
       dSo <- (1-po)*theta_neg + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
-        (delta+rhoh+sigma)*So-g*So
-      dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh
-      dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1]
+        (delta+rhoh+sigma)*So-g*So - 
+        c*(1-Sp)*So # test and culling false positives
+      dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
+        c*(1-Sp)*Sh
+      dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1] - c*(1-Sp)*Sc[1]
       
-      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma)*So-delta*Io-g*Io
-      dIh <- p*theta_pos+g*Io+(rhoh+sigma)*Sh-delta*Ih-g*Ih
-      dIc[1] <- g*Ih+(rhoh+sigma)*Sc[1]-delta*Ic[1]-g*Ic[1]
+      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma)*So-delta*Io-
+        g*Io - # aging
+        c*Se*Io # test & culling detected positives
+      dIh <- p*theta_pos+g*Io+(rhoh+sigma)*Sh-delta*Ih-g*Ih- c*Se*Ih
+      dIc[1] <- g*Ih+(rhoh+sigma)*Sc[1]-delta*Ic[1]-g*Ic[1] -  c*Se*Ic[1]
       
       for(i in 2:length(dSc)) {
         if(i < length(dSc)) {
-          dSc[i] <- g*Sc[i - 1]-(delta+rhoh+sigma)*Sc[i]-g*Sc[i] 
-          dIc[i] <- g*Ic[i - 1]+(rhoh+sigma)*Sc[i]-delta*Ic[i]-g*Ic[i]
+          dSc[i] <- g*Sc[i - 1]-(delta+rhoh+sigma)*Sc[i]-g*Sc[i] - c*(1-Sp)*Sc[i]
+          dIc[i] <- g*Ic[i - 1]+(rhoh+sigma)*Sc[i]-delta*Ic[i]-g*Ic[i]-c*Se*Ic[i]
         } else {
-          dSc[i] <- g*Sc[i - 1]-(delta+rhoh+sigma+eps)*Sc[i] 
-          dIc[i] <- g*Ic[i - 1]+(rhoh+sigma)*Sc[i]-(delta+eps)*Ic[i]
+          dSc[i] <- g*Sc[i - 1]-(delta+rhoh+sigma+eps)*Sc[i] - c*(1-Sp)*Sc[i]
+          dIc[i] <- g*Ic[i - 1]+(rhoh+sigma)*Sc[i]-(delta+eps)*Ic[i] -  c*Se*Ic[i]
         }
       }
 
@@ -84,7 +91,10 @@ fitDetNeospora <- function(dir.in,
     zeta=zeta,
     p=p,
     K=K,
-    g=g
+    g=g,
+    c=c,
+    Se=Se,
+    Sp=Sp
   )
 
   # work out the initial states
@@ -171,7 +181,10 @@ proc_res <- function(dir.in, parms, plot_name) {
                                 p=parms[rn, "p"],
                                 g=parms[rn, "g"],
                                 InitPrev=parms[rn, "InitPrev"],
-                                K=parms[rn, "K"])
+                                K=parms[rn, "K"],
+                                c=parms[rn, "c"],
+                                Se=parms[rn, "Se"],
+                                Sp=parms[rn, "Sp"])
 
   }
 

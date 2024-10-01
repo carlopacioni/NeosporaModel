@@ -14,7 +14,10 @@ parms <- expand.grid(list(maxAge=5,
                            p=0.3,
                            g=1,
                            InitPrev=0.3,
-                           K=1000))
+                           K=1000,
+                           c=0,
+                           Se=0.99,
+                           Sp=0.99))
 
 res_eps <- proc_res("PremResultsAge", parms, plot_name = "eps_model_plot.png")
 
@@ -38,7 +41,10 @@ parms <- expand.grid(list(maxAge=5,
                           p=0.3,
                           g=1,
                           InitPrev=0.3,
-                          K=1000))
+                          K=1000,
+                          c=0,
+                          Se=0.99,
+                          Sp=0.99))
 
 res_sigma <- proc_res("PremResultsAge", parms, plot_name = "sigma_model_plot.png")
 res_sigma
@@ -56,7 +62,10 @@ parms <- expand.grid(list(maxAge=5,
                           p=0.3,
                           g=1,
                           InitPrev=c(0.3, 0.5,0.7),
-                          K=1000))
+                          K=1000,
+                          c=0,
+                          Se=0.99,
+                          Sp=0.99))
 
 res_initPrev <- proc_res("PremResultsAge", parms, plot_name = "initPrev_model_plot.png")
 res_initPrev
@@ -74,7 +83,10 @@ parms <- expand.grid(list(maxAge=5,
                           p=0.3,
                           g=1,
                           InitPrev=0.3,
-                          K=c(100, 300, 1000)))
+                          K=c(100, 300, 1000),
+                          c=0,
+                          Se=0.99,
+                          Sp=0.99))
 
 res_InitN <- proc_res("PremResultsAge", parms, plot_name = "initN_model_plot.png")
 res_InitN
@@ -92,7 +104,10 @@ parms <- expand.grid(list(maxAge=5,
                           p=0.,
                           g=1,
                           InitPrev=0.0,
-                          K=c(1000)))
+                          K=c(1000),
+                          c=0,
+                          Se=0.99,
+                          Sp=0.99))
 
 res_NoNeo <- proc_res("PremResultsAge", parms, plot_name = "NoNeo_model_plot.png")
 res_NoNeo
@@ -110,7 +125,29 @@ parms <- expand.grid(list(maxAge=5,
                           p=0.,
                           g=1,
                           InitPrev=1,
-                          K=c(1000)))
+                          K=c(1000),
+                          c=0,
+                          Se=0.99,
+                          Sp=0.99))
 
 proc_res("PremResultsAge", parms, plot_name = "OneP_model_plot.png")
 
+#### test culling ####
+parms <- expand.grid(list(maxAge=5,
+                          alpha=0.3,
+                          betas=0.02,
+                          betaI=0.08,
+                          rhov=0.9,
+                          delta=0.1,
+                          eps=0.1,
+                          sigma=0,
+                          zeta=0.16,
+                          p=0.2,
+                          g=1,
+                          InitPrev=0.3,
+                          K=c(1000),
+                          c=0.9,
+                          Se=0.99,
+                          Sp=0.99))
+
+proc_res("PremResultsAge", parms, plot_name = "Test_culling_model_plot.png")
