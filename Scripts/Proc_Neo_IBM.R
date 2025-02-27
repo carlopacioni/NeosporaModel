@@ -4,6 +4,12 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
   dir.create(dir.in, showWarnings = FALSE)
   if(ncore == "auto") ncore <- detectCores()
   if(ncore>nsim) ncore <- nsim
+  
+  # Helper function to close ghost cnnections
+  close.cl.if.exists <- function(cl) {
+    m <- showConnections()
+    if(nrow(m)>0) stopCluster(cl)
+  }
   res_out<-vector("list", length = nrow(params))
   for(rn in seq_len(nrow(params))) {
      parms <- list(maxAge=params[rn, "maxAge"],
@@ -28,8 +34,8 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
        out <- lapply(1:nsim, function(z){Neo.ibm(popsize, init.pop, tot.time, 
                                                  intro, ageI=ageI, parms)})
      } else {
-     cl <- makeCluster(5)
-     on.exit(stopCluster(cl))
+     cl <- makeCluster(ncore)
+     on.exit(close.cl.if.exists(cl))
      clusterExport(cl, varlist = c("init.pop", "tot.time", "intro", "parms"), 
                    envir = environment())
      out <- parLapply(cl=cl, 1:nsim, function(z){
