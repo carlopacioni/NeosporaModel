@@ -168,7 +168,7 @@ proc_res <- function(dir.in, parms, plot_name) {
   res<-vector("list", length = nrow(parms))
   for(rn in seq_len(nrow(parms))) {
     res[[rn]] <- fitDetNeospora(dir.in,
-                                times=0:20,
+                                times=0:10,
                                 maxAge=parms[rn, "maxAge"],
                                 alpha=parms[rn, "alpha"],
                                 betas=parms[rn, "betas"],
@@ -197,3 +197,4 @@ proc_res <- function(dir.in, parms, plot_name) {
             base_height = 7, base_asp = 3)
   return(list(res,pgrid))
 }
+
