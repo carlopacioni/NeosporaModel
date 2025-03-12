@@ -39,6 +39,25 @@ schedule<- function(poplist, maxtime, parms, rhoh) {
     if(etime < maxtime) et<- data.frame(ID=ii,type="infected",time=etime)
     et
   }
+  
+  culling <- function(ii, maxtime, cat, parms) {
+    et<- NULL
+    if(cat=="S") {
+      prob_c <- (1 - parms$Sp) * parms$c
+    } else {
+      prob_c <- parms$Se * parms$c
+    }
+    
+    outc <- rbinom(1, 1, prob = prob_c)
+    if(outc) {
+      etime <- runif(1, max = maxtime)
+    } else {
+      etime <- maxtime + 1
+    }
+    
+    if(etime < maxtime) et<- data.frame(ID=ii,type="culled",time=etime)
+    et
+  }
 
   elist<- list()
   N<- length(poplist)
@@ -52,11 +71,18 @@ schedule<- function(poplist, maxtime, parms, rhoh) {
            S = {
              etype<- infected(i, maxtime, parms)
              if(!is.null(etype)) elist[[length(elist)+1]]<- etype
+             
+             etype<- culling(i, maxtime, ind$cat, parms)
+             if(!is.null(etype)) elist[[length(elist)+1]]<- etype
+             
              etype<- death(i, maxtime, ind$age, parms)
              if(!is.null(etype)) elist[[length(elist)+1]]<- etype
            },
            
            I = {
+             etype<- culling(i, maxtime, ind$cat, parms)
+             if(!is.null(etype)) elist[[length(elist)+1]]<- etype
+             
              etype<- death(i,maxtime, ind$age, parms)
              if(!is.null(etype)) elist[[length(elist)+1]]<- etype
            },
@@ -91,6 +117,10 @@ advance<- function(poplist, elist) {
              infected = {
                id<- etype$ID
                if(poplist[[id]]$cat %in% "S") poplist[[id]]$cat<- "I"
+             },
+             culled = {
+               id<- etype$ID
+               poplist[[id]]$cat<- "D"
              }
              )
     }

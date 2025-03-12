@@ -24,7 +24,11 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
                                 p=params[rn, "p"],
                                 g=params[rn, "g"],
                                 InitPrev=params[rn, "InitPrev"],
-                                K=params[rn, "K"])
+                                K=params[rn, "K"], 
+                                c=params[rn, "c"],
+                                Se=params[rn, "Se"],
+                                Sp=params[rn, "Sp"]
+                   )
     
      # S, I
      init.pop<- c(parms$K * (1 - parms$InitPrev), parms$K * parms$InitPrev)
