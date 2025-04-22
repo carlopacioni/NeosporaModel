@@ -163,12 +163,12 @@ fitDetNeospora <- function(dir.in,
 # is a plot where all the plots of each parameter combinations are combined
 # the list of results has 3 elements, the first are the parameter values, the second
 # is the result from the model and the third is the plot
-proc_res <- function(dir.in, parms, plot_name) {
+proc_res <- function(dir.in, parms, times=0:10, plot_name) {
   if(any(parms[, "maxAge"]< 4)) stop("maxAge is assumed to be 4 or more years")
   res<-vector("list", length = nrow(parms))
   for(rn in seq_len(nrow(parms))) {
     res[[rn]] <- fitDetNeospora(dir.in,
-                                times=0:10,
+                                times=times,
                                 maxAge=parms[rn, "maxAge"],
                                 alpha=parms[rn, "alpha"],
                                 betas=parms[rn, "betas"],
