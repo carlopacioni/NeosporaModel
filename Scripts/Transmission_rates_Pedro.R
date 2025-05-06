@@ -26,16 +26,17 @@ dt[, (date_cols) := lapply(.SD, function(x) {
 }), .SDcols = date_cols]
 
 dt[, D_Delta_Dates := as.numeric(D_Post_Date - D_Pre_Date)]
-dt[, Calf_Delta_Dates := as.numeric(Calf_Post_Date - Calf_Pre_Date)]
+dt[, Calf_Delta_Dates := as.numeric(Calf_Pre_Date - Calf_Birth_Date)]
+dt[, Heif_Delta_Dates := as.numeric(Calf_Post_Date - Calf_Pre_Date)]
 
 png("calf_sampling_histogram.png", width = 800, height = 600)
 hist(dt[, Calf_Delta_Dates], main = "Calf Sampling Interval", xlab = "Days")
 dev.off()
 
-dt[, unique(Calf_Delta_Dates)]
-
-hist(dt[, D_Delta_Dates], main = "Dam Sampling Interval", xlab = "Days")
 dt[, unique(D_Delta_Dates)]
+dt[, unique(Calf_Delta_Dates)]
+dt[, unique(Heif_Delta_Dates)]
+
 
 Pos <- dt[D_Pre_E=="Pos" , .N, by=Farm1]
 ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .N, by=Farm1]
