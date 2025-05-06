@@ -32,6 +32,11 @@ png("calf_sampling_histogram.png", width = 800, height = 600)
 hist(dt[, Calf_Delta_Dates], main = "Calf Sampling Interval", xlab = "Days")
 dev.off()
 
+dt[, unique(Calf_Delta_Dates)]
+
+hist(dt[, D_Delta_Dates], main = "Dam Sampling Interval", xlab = "Days")
+dt[, unique(D_Delta_Dates)]
+
 Pos <- dt[D_Pre_E=="Pos" , .N, by=Farm1]
 ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .N, by=Farm1]
 Prev <- merge(ntested, Pos, by="Farm1", all.x=TRUE)
