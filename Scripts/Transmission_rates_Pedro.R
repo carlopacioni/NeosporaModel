@@ -16,6 +16,7 @@ hdr <- c("DamID", "Farm1", "D_Pre_E", "D_Pre_PCR", "D_Post_E", "D_Post_PCR",
 stopifnot(ncol(dt) >= length(hdr))
 setnames(dt, hdr)
 
+#### delta times ####
 date_cols <- c("D_Pre_Date", "D_Post_Date", "Calf_Pre_Date", "Calf_Post_Date", "Calf_Birth_Date")
 
 # Convert to character first and clean up any obvious bad entries
@@ -37,16 +38,16 @@ dt[, unique(D_Delta_Dates)]
 dt[, unique(Calf_Delta_Dates)]
 dt[, unique(Heif_Delta_Dates)]
 
+#### Prevalence Cow pre and PTcow ####
+Pos <- dt[D_Pre_E=="Pos" , .(Pos=.N), by=Farm1]
+ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .(n=.N), by=Farm1]
+Prev_cowPre <- merge(ntested, Pos, by="Farm1", all.x=TRUE)
 
-Pos <- dt[D_Pre_E=="Pos" , .N, by=Farm1]
-ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .N, by=Farm1]
-Prev <- merge(ntested, Pos, by="Farm1", all.x=TRUE)
-
-Prev[is.na(N.y), N.y :=0]
-Prev[, Prev:=N.y/N.x]
-print(Prev)
-print(Prev[1:4, mean(N.y)])
-print(Prev[1:4, mean(Prev)])
+Prev_cowPre[is.na(Pos), Pos :=0]
+Prev_cowPre[, Prev:=Pos/n]
+print(Prev_cowPre)
+print(Prev_cowPre[1:4, mean(n)])
+print(Prev_cowPre[1:4, mean(Prev)])
 
 cows <- dt[!is.na(D_Pre_E) & !is.na(D_Post_E),]
 print(cows[, table(D_Pre_E, D_Post_E)])
@@ -71,10 +72,11 @@ numerat <- 50*(1-ppv)*ppv + 5*(1-ppv)*npv + 41*npv*ppv + 100*npv*(1-npv)
 # denominator = true number of neg pre
 denom <- 141*npv + 55*(1-ppv)
 
-# cows P(HT)
+# cows P(HT) 
 PTcows <- numerat/denom
-# [1] 0.2915952
+# [1] 0.2915952 
 
+#### P(HT) after first week ####
 calves <- dt[!is.na(C_Birth_E) & !is.na(C_Post_E),]
 print(calves[, table(C_Birth_E, C_Post_E)])
 # C_Post_E
@@ -88,21 +90,13 @@ numerat <- 7*(1-ppv)*ppv + 3*(1-ppv)*npv + 1*npv*ppv + 28*npv*(1-npv)
 denom <- 29*npv + 10*(1-ppv)
 
 # calves P(HT)
-PTcalves <- numerat/denom
-print(PTcalves)
+PTcalvesThreeMonths <- numerat/denom
+print(PTcalvesThreeMonths)
 # [1] 0.04393713
 
-# How many times the time interval for cows is larger than calves
-nt <- log(1-PTcows, base = 1-PTcalves)
-
-# if on average cows have been resampled with 105 days interval
-# that is the number of days for the calves interval
-print(105/nt)
-# 13.68517 ~ two weeks
-
-# Compare with P(HT) for calves at birt (~ 4 days)
+# Compare with P(HT) for calves at birth (~ 4 days)
 PTcalvesCol <- 0.172
-PTcalves4days <- 1-(1-PTcalves)^(1/(13.685/4))
+PTcalves4days <- 1-(1-PTcalvesThreeMonths)^(1/(365/4))
 PTcolostrum <- PTcalvesCol - PTcalves4days
 print(PTcolostrum)
 
