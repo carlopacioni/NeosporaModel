@@ -35,27 +35,27 @@ fitDetNeospora <- function(dir.in,
       Ic <- state[(maxAge + 3):length(state)]
       tIc <- sum(Ic) # total infected cows
       N <- So+Sh+tSc+Io+Ih+tIc
-      theta <- K - N
+      theta <- (K - N)/K
       
       # create empty d* vector so that I can use indeces
       dSc <- Sc
       dIc <- Ic
 
       if(theta<0) {
-        theta_neg <- theta
+        theta_neg <- theta*gr
         theta_pos <- 0
       } else {
         theta_neg <- 0
-        theta_pos <- theta
+        theta_pos <- theta*gr
       }
 
       rhoh <- alpha*zeta*(tIc/(tSc + tIc))
       po <- Io/(Io+So)
 
-      dSo <- (1-po)*theta_neg + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
+      dSo <- (1-po)*theta_neg*N + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
         (delta+rhoh+sigma)*So-g*So - 
         c*(1-Sp)*So # test and culling false positives
-      dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
+      dSh <- (1-p)*theta_pos*N + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
         c*(1-Sp)*Sh
       dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1] - c*(1-Sp)*Sc[1]
       
@@ -78,9 +78,14 @@ fitDetNeospora <- function(dir.in,
       return(list(c(dSo, dSh, dSc, dIo, dIh, dIc)))
     })
   }
-
+  # Average number of offspring per cow in the system
+  Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
+  G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
+  gr <- exp(log(Ro)/G)
+  
   params <- c(
     maxAge=maxAge,
+    gr=gr,
     alpha=alpha,
     betas=betas,
     betaI=betaI,
