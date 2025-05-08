@@ -35,34 +35,34 @@ fitDetNeospora <- function(dir.in,
       Ic <- state[(maxAge + 3):length(state)]
       tIc <- sum(Ic) # total infected cows
       N <- So+Sh+tSc+Io+Ih+tIc
-      theta <- (K - N)/K
+      theta <- K - N # (K - N)/K
       
       # create empty d* vector so that I can use indeces
       dSc <- Sc
       dIc <- Ic
 
       if(theta<0) {
-        theta_neg <- theta*gr
+        theta_neg <- theta * gr * exp(abs(N/K))
         theta_pos <- 0
       } else {
         theta_neg <- 0
-        theta_pos <- theta*gr
+        theta_pos <- theta * gr * exp(theta/K)
       }
 
       rhoh <- alpha*zeta*(tIc/(tSc + tIc))
       po <- Io/(Io+So)
 
-      dSo <- (1-po)*theta_neg*N + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
+      dSo <- (1-po)*theta_neg + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
         (delta+rhoh+sigma)*So-g*So - 
         c*(1-Sp)*So # test and culling false positives
-      dSh <- (1-p)*theta_pos*N + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
+      dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
         c*(1-Sp)*Sh
       dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1] - c*(1-Sp)*Sc[1]
       
       dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma)*So-delta*Io-
         g*Io - # aging
         c*Se*Io # test & culling detected positives
-      dIh <- p*theta_pos+g*Io+(rhoh+sigma)*Sh-delta*Ih-g*Ih- c*Se*Ih
+      dIh <- p*theta_pos + g*Io + (rhoh+sigma)*Sh-delta*Ih-g*Ih - c*Se*Ih
       dIc[1] <- g*Ih+(rhoh+sigma)*Sc[1]-delta*Ic[1]-g*Ic[1] -  c*Se*Ic[1]
       
       for(i in 2:length(dSc)) {
@@ -79,9 +79,10 @@ fitDetNeospora <- function(dir.in,
     })
   }
   # Average number of offspring per cow in the system
-  Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
-  G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
-  gr <- exp(log(Ro)/G)
+  # Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
+  # G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
+  # gr <- exp(log(Ro)/G)
+  gr <- 1 + abs(alpha - delta)
   
   params <- c(
     maxAge=maxAge,
