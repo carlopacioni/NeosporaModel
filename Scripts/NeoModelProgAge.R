@@ -42,11 +42,11 @@ fitDetNeospora <- function(dir.in,
       dIc <- Ic
 
       if(theta<0) {
-        theta_neg <- theta * gr #* exp(abs(N/K))
+        theta_neg <- theta * gr * exp(abs(N/K))
         theta_pos <- 0
       } else {
         theta_neg <- 0
-        theta_pos <- theta * gr #* exp(theta/K)
+        theta_pos <- theta * gr * exp(theta/K)
       }
 
       rhoh <- alpha*zeta*(tIc/(tSc + tIc))
