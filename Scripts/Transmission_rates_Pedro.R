@@ -50,7 +50,7 @@ print(Prev_cowPre[1:4, mean(n)])
 print(Prev_cowPre[1:4, mean(Prev)])
 
 cows <- dt[!is.na(D_Pre_E) & !is.na(D_Post_E),]
-print(cows[, table(D_Pre_E, D_Post_E)])
+cont_table <- cows[, table(D_Pre_E, D_Post_E, Farm1)]
 # D_Post_E
 # D_Pre_E Doub Neg Pos
 # Doub    2   1   3
