@@ -94,7 +94,7 @@ fitDetNeospora <- function(dir.in,
   # Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
   # G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
   # gr <- exp(log(Ro)/G)
-  gr <- 1 + abs(alpha - delta - tail(dg/sum(dg), 1) * eps)
+  gr <- 1 + abs(alpha - delta  - c  - tail(dg/sum(dg), 1) * eps)
   
   params <- c(
     maxAge=maxAge,

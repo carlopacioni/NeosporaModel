@@ -52,6 +52,28 @@ res_delta <- proc_res("PremResults", parms, plot_name = "delta_model_plot.png")
 res_delta[[1]][[1]][[2]][, N]
 res_delta[[1]][[4]][[2]][, N]
 
+#### Culling ####
+parms <- expand.grid(list(maxAge=12,
+                          alpha=0.43,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=c(0.02, 0.4),
+                          eps=0.1, ####
+                          sigma= 0.07,   
+                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          p=0.3,
+                          g=1,
+                          InitPrev=0.32,
+                          K=150, ###
+                          c=0.5,        
+                          Se=0.98,
+                          Sp=0.99))
+
+res_culling <- proc_res("PremResults", parms, plot_name = "culling_model_plot.png")
+res_culling[[1]][[1]][[2]][, N]
+res_culling[[1]][[2]][[2]][, N]
+
 #### sigma ####
 parms <- expand.grid(list(maxAge=12,
                           alpha=0.43,
