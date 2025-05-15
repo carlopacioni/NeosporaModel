@@ -78,11 +78,23 @@ fitDetNeospora <- function(dir.in,
       return(list(c(dSo, dSh, dSc, dIo, dIh, dIc)))
     })
   }
+  
+  # work out the initial states
+  dg <- dgeom(1:maxAge, 0.2)
+  Sstate <- (dg/sum(dg))*K*(1-InitPrev)
+  So=Sstate[1]; Sh=Sstate[2]; Sc=tail(Sstate, -2)
+  
+  Istate <- (dg/sum(dg))*K*(InitPrev)
+  Io=Istate[1]; Ih=Istate[2]; Ic=tail(Istate, -2)
+
+  initial_state <- c(So=So, Sh=Sh, Sc=Sc, 
+                     Io=Io, Ih=Ih, Ic=Ic)
+
   # Average number of offspring per cow in the system
   # Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
   # G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
   # gr <- exp(log(Ro)/G)
-  gr <- 1 + abs(alpha - delta - eps)
+  gr <- 1 + abs(alpha - delta - tail(dg/sum(dg), 1) * eps)
   
   params <- c(
     maxAge=maxAge,
@@ -102,19 +114,6 @@ fitDetNeospora <- function(dir.in,
     Se=Se,
     Sp=Sp
   )
-
-  # work out the initial states
-  dg <- dgeom(1:maxAge, 0.2)
-  Sstate <- (dg/sum(dg))*K*(1-InitPrev)
-  So=Sstate[1]; Sh=Sstate[2]; Sc=tail(Sstate, -2)
-  
-  Istate <- (dg/sum(dg))*K*(InitPrev)
-  Io=Istate[1]; Ih=Istate[2]; Ic=tail(Istate, -2)
-
-  initial_state <- c(So=So, Sh=Sh, Sc=Sc, 
-                     Io=Io, Ih=Ih, Ic=Ic)
-
-
   #sum(initial_state)
   #times <- 0:10
 
