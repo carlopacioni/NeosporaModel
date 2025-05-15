@@ -1,4 +1,4 @@
-source(file.path("Scripts", "NeoModel.R"))
+source(file.path("Scripts", "NeoModelProgAge.R"))
 dir.create("PremPremResults", showWarnings = FALSE)
   
   #### eps ####
