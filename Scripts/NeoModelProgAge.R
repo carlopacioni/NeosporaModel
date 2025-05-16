@@ -13,7 +13,8 @@ fitDetNeospora <- function(dir.in,
                            delta,
                            eps,
                            sigma,
-                           zeta,
+                           zeta_env,
+                           zeta_col,
                            p,
                            g,
                            InitPrev,
@@ -49,17 +50,18 @@ fitDetNeospora <- function(dir.in,
         theta_pos <- theta * gr * exp(theta/K)
       }
 
-      rhoh <- alpha*zeta*(tIc/(tSc + tIc))
+      rhoh <- alpha*zeta_env*(tIc/(tSc + tIc))
+      rhoCol <- alpha*zeta_col*(tIc/(tSc + tIc))
       po <- Io/(Io+So)
 
       dSo <- (1-po)*theta_neg + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
-        (delta+rhoh+sigma)*So-g*So - 
+        (delta+rhoh+sigma+rhoCol)*So-g*So - 
         c*(1-Sp)*So # test and culling false positives
       dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
         c*(1-Sp)*Sh
       dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1] - c*(1-Sp)*Sc[1]
       
-      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma)*So-delta*Io-
+      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma+rhoCol)*So-delta*Io-
         g*Io - # aging
         c*Se*Io # test & culling detected positives
       dIh <- p*theta_pos + g*Io + (rhoh+sigma)*Sh-delta*Ih-g*Ih - c*Se*Ih
@@ -106,7 +108,8 @@ fitDetNeospora <- function(dir.in,
     delta=delta,
     eps=eps, # 0.095
     sigma=sigma,
-    zeta=zeta,
+    zeta_env=zeta_env,
+    zeta_col=zeta_col,
     p=p,
     K=K,
     g=g,
@@ -129,7 +132,7 @@ fitDetNeospora <- function(dir.in,
   res[, Ic:= rowSums(.SD), .SDcols=tail(Icols, -2)]
   res[, N:=S + I]
   res[, Prev:=I/N]
-  res[, rhoh:=alpha*zeta*((Ic)/(Sc + Ic))]
+  res[, rhoh:=alpha*zeta_env*((Ic)/(Sc + Ic))]
   #res
 
   res_long <- melt(res, id.vars = "time", variable.name = "Compartment", value.name = "Values")
@@ -182,7 +185,8 @@ proc_res <- function(dir.in, parms, times=0:10, plot_name) {
                                 delta=parms[rn, "delta"],
                                 eps=parms[rn, "eps"], # 0.095
                                 sigma=parms[rn, "sigma"],
-                                zeta=parms[rn, "zeta"],
+                                zeta_env=parms[rn, "zeta_env"],
+                                zeta_col=parms[rn, "zeta_col"],
                                 p=parms[rn, "p"],
                                 g=parms[rn, "g"],
                                 InitPrev=parms[rn, "InitPrev"],

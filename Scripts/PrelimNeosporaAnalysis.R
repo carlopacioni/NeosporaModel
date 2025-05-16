@@ -1,16 +1,19 @@
 source(file.path("Scripts", "NeoModelProgAge.R"))
 dir.create("PremPremResults", showWarnings = FALSE)
+
+alpha <- 0.43
   
   #### eps ####
 parms <- expand.grid(list(maxAge=12,
-                          alpha=0.43,
+                          alpha=alpha,
                           betas=0.05,
                           betaI=0.16,
                           rhov=0.59,
                           delta=0.02,
                           eps=seq(0.1, 0.4, by=0.1), ####
                           sigma= 0.07,   
-                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.32,
@@ -32,14 +35,15 @@ res_eps
 
 #### delta ####
 parms <- expand.grid(list(maxAge=12,
-                          alpha=0.43,
+                          alpha=alpha,
                           betas=0.05,
                           betaI=0.16,
                           rhov=0.59,
                           delta=seq(0.02, 0.4, by=0.1),
                           eps=0.1, ####
                           sigma= 0.07,   
-                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.32,
@@ -54,14 +58,15 @@ res_delta[[1]][[4]][[2]][, N]
 
 #### Culling ####
 parms <- expand.grid(list(maxAge=12,
-                          alpha=0.43,
+                          alpha=alpha,
                           betas=0.05,
                           betaI=0.16,
                           rhov=0.59,
                           delta=c(0.02, 0.4),
                           eps=0.1, ####
                           sigma= 0.07,   
-                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.32,
@@ -76,14 +81,15 @@ res_culling[[1]][[2]][[2]][, N]
 
 #### sigma ####
 parms <- expand.grid(list(maxAge=12,
-                          alpha=0.43,
+                          alpha=alpha,
                           betas=0.05,
                           betaI=0.16,
                           rhov=0.59,
                           delta=0.02,
                           eps=0.1, ####
                           sigma=c(0, 0.005, 0.01, 0.02), 
-                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.32,
@@ -97,14 +103,15 @@ res_sigma
 
 #### initial prevalence ####
 parms <- expand.grid(list(maxAge=12,
-                          alpha=0.43,
+                          alpha=alpha,
                           betas=0.05,
                           betaI=0.16,
                           rhov=0.59,
                           delta=0.02,
                           eps=0.1, ####
                           sigma=0.0, #
-                          zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=c(0, 0.3, 0.5),
@@ -116,6 +123,31 @@ parms <- expand.grid(list(maxAge=12,
 res_initPrev <- proc_res("PremResults", parms, plot_name = "initPrev_model_plot.png")
 res_initPrev
 
+#### test zeta_col ####
+parms <- expand.grid(list(maxAge=12,
+                          alpha=alpha,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
+                          eps=0.1, ####
+                          sigma=0.0, #
+                          zeta_env=c(0, 0.03/alpha), # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=c(0, 0.03/alpha),
+                          p=0.,
+                          g=1,
+                          InitPrev=0.3,
+                          K=150, ###
+                          c=0,        
+                          Se=0.98,
+                          Sp=0.99))
+
+res_zeta_col <- proc_res("PremResults", parms, times=0:50, plot_name = "zeta_col_model_plot.png")
+res_zeta_col
+res_zeta_col[[1]][[2]][[2]][, Prev]
+res_zeta_col[[1]][[3]][[2]][, Prev]
+res_zeta_col[[1]][[4]][[2]][, Prev]
+
 #### French et al ####
 # rho1=alpha(1-betaI)=0.2 from the paper, so derive alpha keeping our abortion rate
 parms <- expand.grid(list(maxAge=12,
@@ -126,7 +158,8 @@ parms <- expand.grid(list(maxAge=12,
                           delta=0.3,
                           eps=0., ####
                           sigma=c(0, 0.025), 
-                          zeta=c(0, 0.025/0.2), # to match publish value beta=0.03=alpha*zeta      
+                          zeta_env=c(0, 0.025/0.2), # to match publish value beta=0.03=alpha*zeta_env      
+                          zeta_col=0.03/alpha,
                           p=0,
                           g=1,
                           InitPrev=0.02,
