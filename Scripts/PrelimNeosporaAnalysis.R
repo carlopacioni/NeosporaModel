@@ -2,6 +2,11 @@ source(file.path("Scripts", "NeoModelProgAge.R"))
 dir.create("PremPremResults", showWarnings = FALSE)
 
 alpha <- 0.43
+
+# Prelim estimates from the farms indicate that delta + rhoH = 0.0145
+# assuming that alpha*zeta_env=0.03, with a Prev=0.3 --> rhoH = 0.009 
+# hence sigma = 0.0145 - 0.009 = 0.00435
+
   
   #### eps ####
 parms <- expand.grid(list(maxAge=12,
