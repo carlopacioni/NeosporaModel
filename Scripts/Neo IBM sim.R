@@ -3,21 +3,27 @@ library(ggplot2)
 
 source(file.path("Scripts","Proc_Neo_IBM.R"))
 
-intro <- 0; nsim <- 100; tot.time<- 20; dir.in <- "Results_Stochastic"
+intro <- 0; nsim <- 100; tot.time<- 20; dir.in <- "Results_Stochastic" 
+alpha <- 0.43
+
 #### eps ####
-parms <- expand.grid(list(maxAge=5,
-                          alpha=0.3,
-                          betas=0.02,
-                          betaI=0.08,
-                          rhov=0.9,
-                          delta=0.1,
+parms <- expand.grid(list(maxAge=12,
+                          alpha=alpha,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
                           eps=seq(0.1, 0.4, by=0.1), # 0.095
                           sigma=0,
-                          zeta=0.028,
+                          zeta_env=0.03/alpha,
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.3,
-                          K=1000))
+                          K=150,              
+                          c=0,        
+                          Se=0.98,
+                          Sp=0.99))
 
 system.time(
 eps <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
@@ -25,19 +31,23 @@ eps <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2,
 )
 
 #### sigma ####
-parms <- expand.grid(list(maxAge=5,
-                          alpha=0.3,
-                          betas=0.02,
-                          betaI=0.08,
-                          rhov=0.9,
-                          delta=0.1,
+parms <- expand.grid(list(maxAge=12,
+                          alpha=alpha,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
                           eps=0.1,
                           sigma=c(0, 0.005, 0.01, 0.02),
-                          zeta=0.028,
+                          zeta_env=0.03/alpha,
+                          zeta_col=0.03/alpha,
                           p=0.3,
                           g=1,
                           InitPrev=0.3,
-                          K=1000))
+                          K=150,
+                          c=0, 
+                          Se=0.98, 
+                          Sp=0.99))
 
 system.time(
   sigma <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
@@ -45,19 +55,23 @@ system.time(
 )
 
 #### sigma vs p ####
-parms <- expand.grid(list(maxAge=5,
-                          alpha=0.3,
-                          betas=0.02,
-                          betaI=0.08,
-                          rhov=0.9,
-                          delta=0.1,
+parms <- expand.grid(list(maxAge=12,
+                          alpha=alpha,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
                           eps=0.1,
-                          sigma=c(0, 0.005, 0.01, 0.02),
-                          zeta=0.028,
+                          sigma=c(0, 0.005, 0.02, 0.07),
+                          zeta_env=0.03/alpha,
+                          zeta_col=0.03/alpha,
                           p=c(0, 0.3),
                           g=1,
                           InitPrev=0.3,
-                          K=1000))
+                          K=150,
+                          c=0,
+                          Se=0.98,
+                          Sp=0.99))
 
 system.time(
   sigma <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
@@ -66,19 +80,23 @@ system.time(
 
 
 #### No Neo ####
-parms <- expand.grid(list(maxAge=5,
-                          alpha=0.3,
-                          betas=0.02,
-                          betaI=0.08,
-                          rhov=0.9,
-                          delta=0.1,
+parms <- expand.grid(list(maxAge=12,
+                          alpha=alpha,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
                           eps=0.1,
                           sigma=0,
-                          zeta=0.028,
+                          zeta_env=0.03/alpha,
+                          zeta_col=0.03/alpha,
                           p=0.,
                           g=1,
                           InitPrev=0.0,
-                          K=c(1000)))
+                          K=150,
+                          c=0,        
+                          Se=0.98,
+                          Sp=0.99))
 
 system.time(
   NoNeo <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
@@ -87,19 +105,23 @@ system.time(
 
 
 #### No Neo with intro ####
-parms <- expand.grid(list(maxAge=5,
+parms <- expand.grid(list(maxAge=12,
                           alpha=0.9, #
-                          betas=0.02,
-                          betaI=0.08,
-                          rhov=0.9,
-                          delta=0.1,
+                          betas=0.05,
+                          betaI=0.16,
+                          rhov=0.59,
+                          delta=0.02,
                           eps=0.1,
                           sigma=0,
-                          zeta=0.028,
+                          zeta_env=0.03/alpha,
+                          zeta_col=0.03/alpha,
                           p=0.,
                           g=1,
                           InitPrev=0.0,
-                          K=c(300)))
+                          K=150,
+                          c=0,        
+                          Se=0.98,
+                          Sp=0.99))
 
 system.time(
   NoNeoIntro <- proc_IBM(dir.in, intro=2, nsim, tot.time, parms, ageI=2, 
@@ -113,3 +135,6 @@ system.time(
 
 
 debug(proc_IBM)
+debug(Neo.ibm)
+debug(schedule)
+

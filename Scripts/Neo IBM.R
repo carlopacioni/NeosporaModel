@@ -19,7 +19,7 @@ fill.pop<- function(cat, inits, maxAge) {
 }
 
 #-----------------------------------------------------------------------
-schedule<- function(poplist, maxtime, parms, rhoh) {
+schedule<- function(poplist, maxtime, parms, rhoh, rhoCol) {
 
   # death is combined with removal rate for the maxAge animals
   death<- function(ii, maxtime, age, parms) {
@@ -31,9 +31,9 @@ schedule<- function(poplist, maxtime, parms, rhoh) {
     et
   }
 
-  infected<- function(ii, maxtime, parms) {
+  infected<- function(ii, maxtime, parms, age) {
     et<- NULL
-    rate<- rhoh + parms$sigma
+    if(age == 1) rate <- rhoh + parms$sigma + rhoCol else rate <- rhoh + parms$sigma 
     etime<- -log(runif(1))/rate
     if(is.na(etime)) etime <- maxtime + 1 # to prevent ot have NaN if both num and denom are 0
     if(etime < maxtime) et<- data.frame(ID=ii,type="infected",time=etime)
@@ -69,7 +69,7 @@ schedule<- function(poplist, maxtime, parms, rhoh) {
     ind<- poplist[[i]]
     switch(ind$cat,
            S = {
-             etype<- infected(i, maxtime, parms)
+             etype<- infected(i, maxtime, parms, ind$age)
              if(!is.null(etype)) elist[[length(elist)+1]]<- etype
              
              etype<- culling(i, maxtime, ind$cat, parms)
@@ -230,8 +230,16 @@ update_rhoh <- function(poplist, parms) {
   df<- do.call('rbind', poplist)
   nIc <- sum(df$cat == "I" & df$age > 2)
   nSc <- sum(df$cat == "S" & df$age > 2)
-  rhoh <-  parms$alpha*parms$zeta*(nIc/(nSc + nIc))
+  rhoh <-  parms$alpha*parms$zeta_env*(nIc/(nSc + nIc))
   return(rhoh)
+}
+
+update_rhoCol <- function(poplist, parms) {
+  df<- do.call('rbind', poplist)
+  nIc <- sum(df$cat == "I" & df$age > 2)
+  nSc <- sum(df$cat == "S" & df$age > 2)
+  rhoCol <-  parms$alpha*parms$zeta_col*(nIc/(nSc + nIc))
+  return(rhoCol)
 }
 # ageI=the age of the infected animal if intro=1
 
@@ -240,6 +248,7 @@ Neo.ibm<- function(popsize, init.pop, tot.time, intro=0, ageI=2, parms) {
   
   pop<- fill.pop(category, init.pop, parms$maxAge)
   rhoh <- update_rhoh(pop, parms)
+  rhoCol <- update_rhoCol(pop, parms)
   pop.sum<- matrix(0,nrow=tot.time,ncol=length(category))
   pop.sum<- data.frame(pop.sum)
   names(pop.sum)<- category
@@ -250,7 +259,7 @@ Neo.ibm<- function(popsize, init.pop, tot.time, intro=0, ageI=2, parms) {
   for(i in 2:tot.time) {
     if(length(pop) == 0) break
     if(i == intro) pop<- add.infected(pop, ageI)
-    event.list<- schedule(pop, 1, parms, rhoh)
+    event.list<- schedule(pop, 1, parms, rhoh, rhoCol)
     pop<- advance(pop, event.list)
     offspring_pop <- birth(pop, parms, maxtime=1)
     pop <- age.animals(pop, parms)
@@ -261,6 +270,7 @@ Neo.ibm<- function(popsize, init.pop, tot.time, intro=0, ageI=2, parms) {
     
     # Needs to update rhoh with new prevalence
     rhoh <- update_rhoh(pop, parms)
+    rhoCol <- update_rhoCol(pop, parms)
   }
   time<- 1:tot.time
   pop.sum<- cbind(time,pop.sum)
