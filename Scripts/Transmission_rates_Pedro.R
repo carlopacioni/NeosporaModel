@@ -99,4 +99,3 @@ PTcalvesCol <- 0.172
 PTcalves4days <- 1-(1-PTcalves)^(1/(13.685/4))
 PTcolostrum <- PTcalvesCol - PTcalves4days
 print(PTcolostrum)
-
