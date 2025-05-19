@@ -128,7 +128,7 @@ advance<- function(poplist, elist) {
   # Update the kill.list - DAVE DID NOT HAVE THIS, CHECK THIS IS RIGHT
   df<- do.call('rbind', poplist)
   kill.list <- df$cat == "D"
-  if(!is.null(kill.list)) poplist<- poplist[-seq_along(poplist)[kill.list]]
+  if(sum(kill.list)>0) poplist<- poplist[-seq_along(poplist)[kill.list]]
   poplist
 }
 #---------------------------------------------------------
@@ -151,7 +151,7 @@ age.animals<- function(poplist, parms) {
     
     df <- do.call('rbind', poplist)
     kill.list <- df$age > parms$maxAge
-    if(!is.null(kill.list)) poplist <- poplist[-seq_along(poplist)[kill.list]]
+    if(sum(kill.list)>0) poplist <- poplist[-seq_along(poplist)[kill.list]]
   }
   poplist
 }
@@ -184,9 +184,11 @@ keepNconstant <- function(poplist, K, p){
         if(clicker == abs(theta)) break  # quit the loop if we reach the target #
         if(poplist[[i]]$cat == "S" & rbinom(1, 1, prob = 1 - po)) {
           poplist[[i]]$cat <- "D" # Flag to remove if is a calf, with prob 1-po if it is S
+          clicker <- clicker + 1
         } else {
           if(poplist[[i]]$cat == "I" & rbinom(1, 1, prob = po)) { # or with prob po if it is I
             poplist[[i]]$cat <- "D"
+            clicker <- clicker + 1
           }
         }
       }
@@ -194,7 +196,9 @@ keepNconstant <- function(poplist, K, p){
     }
     }
   }
-  if(!is.null(kill.list)) poplist <- poplist[-seq_along(poplist)[kill.list]]
+  df <- do.call('rbind', poplist)
+  kill.list <- df$cat == "D"
+  if(sum(kill.list)>0) poplist <- poplist[-seq_along(poplist)[kill.list]]
   poplist
 }
 #-----------------------------------------------------
@@ -267,6 +271,10 @@ Neo.ibm<- function(popsize, init.pop, tot.time, intro=0, ageI=2, parms) {
     pop <- c(pop, offspring_pop)
     pop <- keepNconstant(pop, parms$K, parms$p)
     pop.sum[i,] <- pop.census(pop, category)
+    
+    # This is for debugging
+    # capture.output(print(event.list), file = "debug.txt", append = TRUE)
+    # capture.output(print(pop.sum), file = "debug.txt", append = TRUE)
     
     # Needs to update rhoh with new prevalence
     rhoh <- update_rhoh(pop, parms)
