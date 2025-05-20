@@ -18,7 +18,7 @@ setnames(dt, hdr)
 
 date_cols <- c("D_Pre_Date", "D_Post_Date", "Calf_Pre_Date", "Calf_Post_Date", "Calf_Birth_Date")
 
-# Convert to character first and clean up any obvious bad entries
+# Convert and clean bad entries
 dt[, (date_cols) := lapply(.SD, function(x) {
   x <- as.character(x)
   x[!grepl("^\\d{1,2}[-/\\.]\\d{1,2}[-/\\.]\\d{2,4}|\\d{4}[-/\\.]\\d{1,2}[-/\\.]\\d{1,2}$", x)] <- NA
@@ -43,7 +43,7 @@ print(Prev[1:4, mean(N.y)])
 print(Prev[1:4, mean(Prev)])
 
 cows <- dt[!is.na(D_Pre_E) & !is.na(D_Post_E),]
-print(cows[, table(D_Pre_E, D_Post_E)])
+print(cows[, table(D_Pre_E, D_Post_E, Farm1)])
 # D_Post_E
 # D_Pre_E Doub Neg Pos
 # Doub    2   1   3
@@ -58,33 +58,43 @@ print(cows[, table(D_Pre_E, D_Post_E)])
 # Pos   a     b
 # Neg   c     d
 
-# numerator = number of truly neg pre and truly pos post
-# a(1-ppv)ppv + b(1-ppv)npv + c*npv*ppv + dnpv(1-npv)
-numerat <- 50*(1-ppv)*ppv + 5*(1-ppv)*npv + 41*npv*ppv + 100*npv*(1-npv)
+# Numerators Cows
+a <- c(50, 36, 5, 5, 1, 3)
+b <- c(5, 0, 4, 1, 0, 0)
+c <- c(41, 22, 14, 1, 0, 4)
+d <- c(100, 45, 26, 8, 17, 4)
 
-# denominator = true number of neg pre
-denom <- 141*npv + 55*(1-ppv)
+# Denominator Cows
+neg_pre <- c(141, 67, 40, 9, 17, 8)
+pos_pre <- c(55, 36, 9, 6, 1, 3)
 
-# cows P(HT)
-PTcows <- numerat/denom
-# [1] 0.2915952
+# Calculate numerator and denominator
+numerat <- a*(1-ppv)*ppv + b*(1-ppv)*npv + c*npv*ppv + d*npv*(1-npv)
+denom <- neg_pre*npv + pos_pre*(1-ppv)
 
-calves <- dt[!is.na(C_Birth_E) & !is.na(C_Post_E),]
-print(calves[, table(C_Birth_E, C_Post_E)])
-# C_Post_E
-# C_Birth_E Doub Neg Pos
-# Doub    0   3   0
-# Neg     1  28   1
-# Pos     0   3   7
+# PT cows
+PTcows <- numerat / denom
+names(PTcows) <- c("TOTAL", "PH", "G", "NM", "W", "NC")
+print(PTcows)
 
-numerat <- 7*(1-ppv)*ppv + 3*(1-ppv)*npv + 1*npv*ppv + 28*npv*(1-npv)
+# Numerators
+a <- c(7, NA, 2, 4, 1, NA)   # Pos–Pos
+b <- c(3, NA, 3, 0, 0, NA)   # Pos–Neg
+c <- c(1, NA, 0, 1, 0, NA)   # Neg–Pos
+d <- c(28, NA, 18, 0, 10, NA) # Neg–Neg
 
-denom <- 29*npv + 10*(1-ppv)
+# Denominator
+neg_birth <- c(29, NA, 18, 1, 10, NA)
+pos_birth <- c(10, NA, 5, 4, 1, NA)
 
-# calves P(HT)
-PTcalves <- numerat/denom
+# Compute numerator and denominator
+numerat <- a*(1-ppv)*ppv + b*(1-ppv)*npv + c*npv*ppv + d*npv*(1-npv)
+denom <- neg_birth*npv + pos_birth*(1-ppv)
+
+# P(HT) for calves
+PTcalves <- numerat / denom
+names(PTcalves) <- c("TOTAL", "PH", "G", "NM", "W", "NC")
 print(PTcalves)
-# [1] 0.04393713
 
 # How many times the time interval for cows is larger than calves
 nt <- log(1-PTcows, base = 1-PTcalves)
