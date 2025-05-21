@@ -16,6 +16,7 @@ hdr <- c("DamID", "Farm1", "D_Pre_E", "D_Pre_PCR", "D_Post_E", "D_Post_PCR",
 stopifnot(ncol(dt) >= length(hdr))
 setnames(dt, hdr)
 
+#### delta times ####
 date_cols <- c("D_Pre_Date", "D_Post_Date", "Calf_Pre_Date", "Calf_Post_Date", "Calf_Birth_Date")
 
 # Convert and clean bad entries
@@ -26,24 +27,31 @@ dt[, (date_cols) := lapply(.SD, function(x) {
 }), .SDcols = date_cols]
 
 dt[, D_Delta_Dates := as.numeric(D_Post_Date - D_Pre_Date)]
-dt[, Calf_Delta_Dates := as.numeric(Calf_Post_Date - Calf_Pre_Date)]
+dt[, Calf_Delta_Dates := as.numeric(Calf_Pre_Date - Calf_Birth_Date)]
+dt[, Heif_Delta_Dates := as.numeric(Calf_Post_Date - Calf_Pre_Date)]
 
 png("calf_sampling_histogram.png", width = 800, height = 600)
 hist(dt[, Calf_Delta_Dates], main = "Calf Sampling Interval", xlab = "Days")
 dev.off()
 
-Pos <- dt[D_Pre_E=="Pos" , .N, by=Farm1]
-ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .N, by=Farm1]
-Prev <- merge(ntested, Pos, by="Farm1", all.x=TRUE)
+dt[, unique(D_Delta_Dates)]
+dt[, unique(Calf_Delta_Dates)]
+dt[, unique(Heif_Delta_Dates)]
 
-Prev[is.na(N.y), N.y :=0]
-Prev[, Prev:=N.y/N.x]
-print(Prev)
-print(Prev[1:4, mean(N.y)])
-print(Prev[1:4, mean(Prev)])
+#### Prevalence Cow pre and PTcow ####
+Pos <- dt[D_Pre_E=="Pos" , .(Pos=.N), by=Farm1]
+ntested <- dt[!is.na(D_Pre_E) & D_Pre_E!="Doub" , .(n=.N), by=Farm1]
+Prev_cowPre <- merge(ntested, Pos, by="Farm1", all.x=TRUE)
+
+Prev_cowPre[is.na(Pos), Pos :=0]
+Prev_cowPre[, Prev:=Pos/n]
+print(Prev_cowPre)
+print(Prev_cowPre[1:4, mean(n)])
+print(Prev_cowPre[1:4, mean(Prev)])
 
 cows <- dt[!is.na(D_Pre_E) & !is.na(D_Post_E),]
 print(cows[, table(D_Pre_E, D_Post_E, Farm1)])
+cont_table <- cows[, table(D_Pre_E, D_Post_E, Farm1)]
 # D_Post_E
 # D_Pre_E Doub Neg Pos
 # Doub    2   1   3
@@ -77,6 +85,19 @@ PTcows <- numerat / denom
 names(PTcows) <- c("TOTAL", "PH", "G", "NM", "W", "NC")
 print(PTcows)
 
+# cows P(HT) 
+PTcows <- numerat/denom
+# [1] 0.2915952 
+
+#### P(HT) after first week ####
+calves <- dt[!is.na(C_Birth_E) & !is.na(C_Post_E),]
+print(calves[, table(C_Birth_E, C_Post_E)])
+# C_Post_E
+# C_Birth_E Doub Neg Pos
+# Doub    0   3   0
+# Neg     1  28   1
+# Pos     0   3   7
+
 # Numerators
 a <- c(7, NA, 2, 4, 1, NA)   # Pos–Pos
 b <- c(3, NA, 3, 0, 0, NA)   # Pos–Neg
@@ -96,16 +117,13 @@ PTcalves <- numerat / denom
 names(PTcalves) <- c("TOTAL", "PH", "G", "NM", "W", "NC")
 print(PTcalves)
 
-# How many times the time interval for cows is larger than calves
-nt <- log(1-PTcows, base = 1-PTcalves)
+# calves P(HT)
+PTcalvesThreeMonths <- numerat/denom
+print(PTcalvesThreeMonths)
+# [1] 0.04393713
 
-# if on average cows have been resampled with 105 days interval
-# that is the number of days for the calves interval
-print(105/nt)
-# 13.68517 ~ two weeks
-
-# Compare with P(HT) for calves at birt (~ 4 days)
+# Compare with P(HT) for calves at birth (~ 4 days)
 PTcalvesCol <- 0.172
-PTcalves4days <- 1-(1-PTcalves)^(1/(13.685/4))
+PTcalves4days <- 1-(1-PTcalvesThreeMonths)^(1/(365/4))
 PTcolostrum <- PTcalvesCol - PTcalves4days
 print(PTcolostrum)

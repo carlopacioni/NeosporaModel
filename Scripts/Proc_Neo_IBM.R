@@ -20,7 +20,8 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
                                 delta=params[rn, "delta"],
                                 eps=params[rn, "eps"], 
                                 sigma=params[rn, "sigma"],
-                                zeta=params[rn, "zeta"],
+                                zeta_env=params[rn, "zeta_env"],
+                                zeta_col=params[rn, "zeta_col"],
                                 p=params[rn, "p"],
                                 g=params[rn, "g"],
                                 InitPrev=params[rn, "InitPrev"],
@@ -69,7 +70,8 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
      
      res_summary <- res_long[, .(Mean=mean(value), SD=sd(value), Median=median(value), 
                                  lcl=quantile(value, 0.0275, na.rm=TRUE),
-                                 ucl=quantile(value,0.975, na.rm=TRUE)), by=list(time, Parameter)]
+                                 ucl=quantile(value,0.975, na.rm=TRUE)), 
+                                 by=list(time, Parameter)]
      
      new_parm <- c(parms, intro=intro, nsim=nsim, tot.time=tot.time, ageI=ageI)
      res_out[[rn]] <- list(new_parm, res, res_long, res_summary, p)

@@ -9,13 +9,13 @@ parms_DoN <- expand.grid(list(maxAge=12,
                               betaI=0.16,
                               rhov=0.59,
                               delta=0.02,
-                              eps=0.095,
+                              eps=0.1, ####
                               sigma= 0.07,   
-                              zeta=0.03,      
+                              zeta=0.03/0.43, # to match publish value beta=0.03=alpha*zeta      
                               p=0.3,
                               g=1,
                               InitPrev=0.32,
-                              K=450,
+                              K=150, ###
                               c=0,        
                               Se=0.98,
                               Sp=0.99))

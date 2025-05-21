@@ -13,7 +13,8 @@ fitDetNeospora <- function(dir.in,
                            delta,
                            eps,
                            sigma,
-                           zeta,
+                           zeta_env,
+                           zeta_col,
                            p,
                            g,
                            InitPrev,
@@ -35,34 +36,35 @@ fitDetNeospora <- function(dir.in,
       Ic <- state[(maxAge + 3):length(state)]
       tIc <- sum(Ic) # total infected cows
       N <- So+Sh+tSc+Io+Ih+tIc
-      theta <- K - N
+      theta <- K - N # (K - N)/K
       
       # create empty d* vector so that I can use indeces
       dSc <- Sc
       dIc <- Ic
 
       if(theta<0) {
-        theta_neg <- theta
+        theta_neg <- theta * gr * exp(abs(N/K))
         theta_pos <- 0
       } else {
         theta_neg <- 0
-        theta_pos <- theta
+        theta_pos <- theta * gr * exp(theta/K)
       }
 
-      rhoh <- alpha*zeta*(tIc/(tSc + tIc))
+      rhoh <- alpha*zeta_env*(tIc/(tSc + tIc))
+      rhoCol <- alpha*zeta_col*(tIc/(tSc + tIc))
       po <- Io/(Io+So)
 
       dSo <- (1-po)*theta_neg + alpha*(1-betas)*tSc+alpha*(1-betaI)*(1-rhov)*tIc-
-        (delta+rhoh+sigma)*So-g*So - 
+        (delta+rhoh+sigma+rhoCol)*So-g*So - 
         c*(1-Sp)*So # test and culling false positives
       dSh <- (1-p)*theta_pos + g*So-(delta+rhoh+sigma)*Sh-g*Sh - 
         c*(1-Sp)*Sh
       dSc[1] <- g*Sh -(delta+rhoh+sigma)*Sc[1]-g*Sc[1] - c*(1-Sp)*Sc[1]
       
-      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma)*So-delta*Io-
+      dIo <- po*theta_neg + alpha*rhov*(1-betaI)*tIc + (rhoh+sigma+rhoCol)*So-delta*Io-
         g*Io - # aging
         c*Se*Io # test & culling detected positives
-      dIh <- p*theta_pos+g*Io+(rhoh+sigma)*Sh-delta*Ih-g*Ih- c*Se*Ih
+      dIh <- p*theta_pos + g*Io + (rhoh+sigma)*Sh-delta*Ih-g*Ih - c*Se*Ih
       dIc[1] <- g*Ih+(rhoh+sigma)*Sc[1]-delta*Ic[1]-g*Ic[1] -  c*Se*Ic[1]
       
       for(i in 2:length(dSc)) {
@@ -78,25 +80,7 @@ fitDetNeospora <- function(dir.in,
       return(list(c(dSo, dSh, dSc, dIo, dIh, dIc)))
     })
   }
-
-  params <- c(
-    maxAge=maxAge,
-    alpha=alpha,
-    betas=betas,
-    betaI=betaI,
-    rhov=rhov,
-    delta=delta,
-    eps=eps, # 0.095
-    sigma=sigma,
-    zeta=zeta,
-    p=p,
-    K=K,
-    g=g,
-    c=c,
-    Se=Se,
-    Sp=Sp
-  )
-
+  
   # work out the initial states
   dg <- dgeom(1:maxAge, 0.2)
   Sstate <- (dg/sum(dg))*K*(1-InitPrev)
@@ -108,7 +92,31 @@ fitDetNeospora <- function(dir.in,
   initial_state <- c(So=So, Sh=Sh, Sc=Sc, 
                      Io=Io, Ih=Ih, Ic=Ic)
 
-
+  # Average number of offspring per cow in the system
+  # Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
+  # G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
+  # gr <- exp(log(Ro)/G)
+  gr <- 1 + abs(alpha - delta  - c  - tail(dg/sum(dg), 1) * eps)
+  
+  params <- c(
+    maxAge=maxAge,
+    gr=gr,
+    alpha=alpha,
+    betas=betas,
+    betaI=betaI,
+    rhov=rhov,
+    delta=delta,
+    eps=eps, # 0.095
+    sigma=sigma,
+    zeta_env=zeta_env,
+    zeta_col=zeta_col,
+    p=p,
+    K=K,
+    g=g,
+    c=c,
+    Se=Se,
+    Sp=Sp
+  )
   #sum(initial_state)
   #times <- 0:10
 
@@ -124,7 +132,7 @@ fitDetNeospora <- function(dir.in,
   res[, Ic:= rowSums(.SD), .SDcols=tail(Icols, -2)]
   res[, N:=S + I]
   res[, Prev:=I/N]
-  res[, rhoh:=alpha*zeta*((Ic)/(Sc + Ic))]
+  res[, rhoh:=alpha*zeta_env*((Ic)/(Sc + Ic))]
   #res
 
   res_long <- melt(res, id.vars = "time", variable.name = "Compartment", value.name = "Values")
@@ -177,7 +185,8 @@ proc_res <- function(dir.in, parms, times=0:10, plot_name) {
                                 delta=parms[rn, "delta"],
                                 eps=parms[rn, "eps"], # 0.095
                                 sigma=parms[rn, "sigma"],
-                                zeta=parms[rn, "zeta"],
+                                zeta_env=parms[rn, "zeta_env"],
+                                zeta_col=parms[rn, "zeta_col"],
                                 p=parms[rn, "p"],
                                 g=parms[rn, "g"],
                                 InitPrev=parms[rn, "InitPrev"],

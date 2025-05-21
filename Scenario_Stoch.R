@@ -6,7 +6,7 @@ source(file.path("Scripts","Proc_Neo_IBM.R"))
 Se=0.98
 Sp=0.99
 
-intro <- 0; nsim <- 100; tot.time<- 10; dir.in <- "Results_Stochastic"
+intro <- 0; nsim <- 100; tot.time<- 10; dir.in <- "Results_Stochastic"; alpha=0.43
 #### Do Nothing ####
 parms <- expand.grid(list(maxAge=12,
                           alpha=0.43,
@@ -16,7 +16,8 @@ parms <- expand.grid(list(maxAge=12,
                           delta=0.02,
                           eps=0.095,
                           sigma=0.07,   
-                          zeta=0.03,      
+                          zeta_env=0.03,
+                          zeta_col=0.03,      
                           p=0.3,
                           g=1,
                           InitPrev=0.32,
