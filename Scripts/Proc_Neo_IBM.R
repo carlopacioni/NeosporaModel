@@ -60,7 +60,8 @@ proc_IBM <- function(dir.in, intro, nsim, tot.time, params, ageI, root_name, nco
                     color = "black", linewidth = 1.2, linetype=2) +
        stat_summary(fun = quantile, fun.args = list(probs=0.975), geom = "line", 
                     color = "black", linewidth = 1.2, linetype=2) +
-       theme(legend.position = "none")
+       theme(legend.position = "none") +
+       
      
      # summary stats - needs clean up
      suppressWarnings(
