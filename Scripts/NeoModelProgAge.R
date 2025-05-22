@@ -93,8 +93,12 @@ fitDetNeospora <- function(dir.in,
                      Io=Io, Ih=Ih, Ic=Ic)
 
   # Average number of offspring per cow in the system
+  # That is the sum of the survival * mean number of offspring for each age sigma(lxbx)
+  # Here the first two years is zero because they do not produce offspring
+  # last year in the system (maxAge) the survival needs to include eps. all other age are the same
   # Ro <- (maxAge-3)*(1-delta)*alpha + alpha*(1-delta-eps)
   # G <- sum(3:maxAge)/length(3:maxAge)  # mean age of reproduction (generation time)
+  # G <- 
   # gr <- exp(log(Ro)/G)
   gr <- 1 + abs(alpha - delta  - c  - tail(dg/sum(dg), 1) * eps)
   
