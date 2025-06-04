@@ -7,7 +7,7 @@ InitPrev <- 0.32
 zeta_col <- 0.2
 
 ### Do Nothing  
-parms_DoN <- expand.grid(list(maxAge=12,
+parms_BLA <- expand.grid(list(maxAge=12,
                               alpha=alpha,
                               betas=0.05,
                               betaI=0.14,
@@ -25,9 +25,29 @@ parms_DoN <- expand.grid(list(maxAge=12,
                               Se=0.98,
                               Sp=0.99))
 
-res_sigma_DoN <- proc_res("PremResultsAge", parms_DoN, plot_name = "DoN_model_A_plot.png")
+res_BLA <- proc_res("PremResultsAge", parms_BLA, plot_name = "BLA_model_plot.png")
 
-parms <- expand.grid(list(maxAge=12,
+parms_BLB <- expand.grid(list(maxAge=12,
+                              alpha=alpha,
+                              betas=0.05,
+                              betaI=0.14,
+                              rhov=0.43,
+                              delta=0.1,
+                              eps=0.095,
+                              sigma= 0.07,   
+                              zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
+                              zeta_col=zeta_col,     
+                              p=0.3,
+                              g=1,
+                              InitPrev=InitPrev,
+                              K=150,
+                              c=0,        
+                              Se=0.98,
+                              Sp=0.99))
+
+res_BLB <- proc_res("PremResultsAge", parms_BLB, plot_name = "BLB_model_plot.png")
+
+parms_BioS <- expand.grid(list(maxAge=12,
                           alpha=0.39,
                           betas=0.05,
                           betaI=0.14,
@@ -45,8 +65,7 @@ parms <- expand.grid(list(maxAge=12,
                           Se=0.98,
                           Sp=0.99))
 
-res_sigma <- proc_res("PremResultsAge", parms, plot_name = "DoN_model_B_plot.png")
-res_sigma
+res_BioS <- proc_res("PremResultsAge", parms_BioS, plot_name = "BioS_model_plot.png")
 
 ### Test New Animals  
 parms_TNA <- expand.grid(list(maxAge=12,
@@ -67,9 +86,30 @@ parms_TNA <- expand.grid(list(maxAge=12,
                               Se=0.98,
                               Sp=0.99))
 
-res_sigma_TNA <- proc_res("PremResultsAge", parms_TNA, plot_name = "NewAni_A_model_plot.png")
+res_TNA <- proc_res("PremResultsAge", parms_TNA, plot_name = "TNA_model_plot.png")
 
 parms_TNB <- expand.grid(list(maxAge=12,
+                              alpha=0.39,
+                              betas=0.05,
+                              betaI=0.14,
+                              rhov=0.43,
+                              delta=0.1,
+                              eps=0.095,
+                              sigma= 0.07,   
+                              zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
+                              zeta_col=zeta_col,      
+                              p=0.002,           
+                              g=1,
+                              InitPrev=0.32,
+                              K=150,
+                              c=0,        
+                              Se=0.98,
+                              Sp=0.99))
+
+res_TNB <- proc_res("PremResultsAge", parms_TNB, plot_name = "TNB_model_plot.png")
+
+
+parms_TNBioS <- expand.grid(list(maxAge=12,
                               alpha=0.39,
                               betas=0.05,
                               betaI=0.14,
@@ -87,7 +127,7 @@ parms_TNB <- expand.grid(list(maxAge=12,
                               Se=0.98,
                               Sp=0.99))
 
-res_sigma_TNB <- proc_res("PremResultsAge", parms_TNB, plot_name = "NewAni_B_model_plot.png")
+res_TNBioS <- proc_res("PremResultsAge", parms_TNBioS, plot_name = "TNBioS_model_plot.png")
 
 ### Test and Cull  
 parms_TNC_A <- expand.grid(list(maxAge=12,
@@ -108,9 +148,30 @@ parms_TNC_A <- expand.grid(list(maxAge=12,
                                 Se=0.98,
                                 Sp=0.99))
 
-res_sigma_TNC_A <- proc_res("PremResultsAge", parms_TNC_A, plot_name = "TNC_A_model_plot.png")
+res_TNC_A <- proc_res("PremResultsAge", parms_TNC_A, plot_name = "TNC_A_model_plot.png")
 
 parms_TNC_B <- expand.grid(list(maxAge=12,
+                                alpha=0.39,
+                                betas=0.05,
+                                betaI=0.14,
+                                rhov=0.43,
+                                delta=0.1,
+                                eps=0.095,
+                                sigma= 0.07,   
+                                zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
+                                zeta_col=zeta_col,     
+                                p=0.002,
+                                g=1,
+                                InitPrev=0.32,
+                                K=150,
+                                c=0.50,        
+                                Se=0.98,
+                                Sp=0.99))
+
+res_TNC_B <- proc_res("PremResultsAge", parms_TNC_B, plot_name = "TNC_B_model_plot.png")
+
+
+parms_TNC_BioS <- expand.grid(list(maxAge=12,
                                 alpha=0.39,
                                 betas=0.05,
                                 betaI=0.14,
@@ -128,7 +189,7 @@ parms_TNC_B <- expand.grid(list(maxAge=12,
                                 Se=0.98,
                                 Sp=0.99))
 
-res_sigma_TNC_B <- proc_res("PremResultsAge", parms_TNC_B, plot_name = "TNC_B_model_plot.png")
+res_TNC_BioS <- proc_res("PremResultsAge", parms_TNC_BioS, plot_name = "TNC_BioS_model_plot.png")
 
 extract_prev <- function(l) {
   dl <- vector("list", length = length(l))
@@ -139,12 +200,22 @@ extract_prev <- function(l) {
   return(rbindlist(dl, idcol = "Scenario"))
 }
 
-l <- list(DonA=res_sigma_DoN, DoNB=res_sigma, 
-          TNA=res_sigma_TNA, TNB=res_sigma_TNB, 
-          TNC_A=res_sigma_TNC_A, TNC_B=res_sigma_TNC_B)
+l <- list(BLA=res_BLA, BLB=res_BLB, BioS=res_BioS,
+          TNA=res_TNA, TNB=res_TNB, TNBioS=res_BioS, 
+          TNC_A=res_TNC_A, TNC_B=res_TNC_B, TNC_BioS=res_TNC_BioS)
 data <- extract_prev(l)
-setnames(data, "time", "Year")
+setnames(data, c("time", "Prev"), c("Years", "Prevalence"))
 
+ggplot(data, aes(x = Years, y = Prevalence, color = Scenario, 
+                 group = Scenario, linetype = Scenario)) +
+  geom_line(linewidth = 1, alpha = 0.8) +  # linewidth and transparency
+  geom_point(size = 2) +  # points for clarity
+  labs(title = "Seroprevalence Over Time in Different Scenarios",
+       x = "Years",
+       y = "Seroprevalence (%)",
+       color = "Scenario",
+       linetype = "Scenario") +  #legend line types
+  theme_minimal()
 
 ####EXPLORING
 
