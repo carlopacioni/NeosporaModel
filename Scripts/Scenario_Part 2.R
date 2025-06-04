@@ -130,6 +130,20 @@ parms_TNC_B <- expand.grid(list(maxAge=12,
 
 res_sigma_TNC_B <- proc_res("PremResultsAge", parms_TNC_B, plot_name = "TNC_B_model_plot.png")
 
+extract_prev <- function(l) {
+  dl <- vector("list", length = length(l))
+  for(i in seq_along(l)) {
+    dl[[i]] <- l[[i]][[1]][[1]][[2]][, .(time, Prev)]
+  }
+  names(dl) <- names(l)
+  return(rbindlist(dl, idcol = "Scenario"))
+}
+
+l <- list(DonA=res_sigma_DoN, DoNB=res_sigma, 
+          TNA=res_sigma_TNA, TNB=res_sigma_TNB, 
+          TNC_A=res_sigma_TNC_A, TNC_B=res_sigma_TNC_B)
+data <- extract_prev(l)
+setnames(data, "time", "Year")
 
 
 ####EXPLORING
