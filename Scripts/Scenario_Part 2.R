@@ -205,8 +205,6 @@ extract_prev <- function(l) {
   return(rbindlist(dl))
 }
 
-data <- extract_prev(l)
-
 l <- list(
   IntBLN = res_BLA,
   ExtBLN = res_BLB,
@@ -218,6 +216,8 @@ l <- list(
   ExtTCN = res_TNC_B,
   IntTCY = res_TNC_BioS
 )
+
+data <- extract_prev(l)
 
 # Plot
 ggplot(data, aes(x = time, y = Prev,
@@ -232,3 +232,5 @@ ggplot(data, aes(x = time, y = Prev,
     y = "Seroprevalence (%)"
   ) +
   theme_minimal()
+ggsave()
+
