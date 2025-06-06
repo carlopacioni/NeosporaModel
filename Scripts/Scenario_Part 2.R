@@ -2,7 +2,7 @@ source(file.path("Scripts", "NeoModelProgAge.R"))
 # dir.create("PremResultsAge", showWarnings = FALSE)
 #### Scenarios  ####
 
-alpha <- 0.43
+alpha <- 0.39
 InitPrev <- 0.32
 zeta_col <- 0.2
 
@@ -32,7 +32,7 @@ parms_BLB <- expand.grid(list(maxAge=12,
                               betas=0.05,
                               betaI=0.14,
                               rhov=0.43,
-                              delta=0.1,
+                              delta=0.3,
                               eps=0.095,
                               sigma= 0.07,   
                               zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
@@ -93,7 +93,7 @@ parms_TNB <- expand.grid(list(maxAge=12,
                               betas=0.05,
                               betaI=0.14,
                               rhov=0.43,
-                              delta=0.1,
+                              delta=0.3,
                               eps=0.095,
                               sigma= 0.07,   
                               zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
@@ -155,7 +155,7 @@ parms_TNC_B <- expand.grid(list(maxAge=12,
                                 betas=0.05,
                                 betaI=0.14,
                                 rhov=0.43,
-                                delta=0.1,
+                                delta=0.3,
                                 eps=0.095,
                                 sigma= 0.07,   
                                 zeta_env=0.03/alpha, # to match publish value beta=0.03=alpha*zeta_env 
