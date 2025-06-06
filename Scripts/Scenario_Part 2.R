@@ -194,78 +194,41 @@ res_TNC_BioS <- proc_res("PremResultsAge", parms_TNC_BioS, plot_name = "TNC_BioS
 extract_prev <- function(l) {
   dl <- vector("list", length = length(l))
   for(i in seq_along(l)) {
-    dl[[i]] <- l[[i]][[1]][[1]][[2]][, .(time, Prev)]
+    temp <- l[[i]][[1]][[1]][[2]][, .(time, Prev)]
+    name <- names(l)[i]
+    temp[, Scenario := name]
+    temp[, HerdManagement := ifelse(substr(name, 1, 3) == "Int", "Internal", "External")]
+    temp[, Treatment := substr(name, 4, 5)]
+    temp[, BioSecurity := ifelse(substr(name, 6, 6) == "Y", "Yes", "No")]
+    dl[[i]] <- temp
   }
-  names(dl) <- names(l)
-  return(rbindlist(dl, idcol = "Scenario"))
+  return(rbindlist(dl))
 }
 
-l <- list(BLA=res_BLA, BLB=res_BLB, BioS=res_BioS,
-          TNA=res_TNA, TNB=res_TNB, TNBioS=res_BioS, 
-          TNC_A=res_TNC_A, TNC_B=res_TNC_B, TNC_BioS=res_TNC_BioS)
 data <- extract_prev(l)
-setnames(data, c("time", "Prev"), c("Years", "Prevalence"))
 
-ggplot(data, aes(x = Years, y = Prevalence, color = Scenario, 
-                 group = Scenario, linetype = Scenario)) +
-  geom_line(linewidth = 1, alpha = 0.8) +  # linewidth and transparency
-  geom_point(size = 2) +  # points for clarity
-  labs(title = "Seroprevalence Over Time in Different Scenarios",
-       x = "Years",
-       y = "Seroprevalence (%)",
-       color = "Scenario",
-       linetype = "Scenario") +  #legend line types
-  theme_minimal()
-
-####EXPLORING
-
-# Adjusted Parameters for Infection Control without Extreme Culling
-parms_adjusted <- expand.grid(list(
-  maxAge = 12,
-  alpha = 0.43,
-  betas = 0.05,
-  betaI = 0.16,
-  rhov = 0.59,
-  delta = 0.02,
-  eps = 0.095,
-  sigma = 0.01,    # Reduced environmental transmission
-  zeta = 0.01,     # Reduced within-herd transmission
-  p = 0,           # No infected introductions
-  g = 1,
-  InitPrev = 0.32,
-  K = 1000,
-  c = 0.20,        # Moderate culling
-  Se = 0.98,
-  Sp = 0.99
-))
-
-res_adjusted <- proc_res("PremResultsAge", parms_adjusted, plot_name = "Adjusted_Infection_Control.png")
-
-
-
-
-# parameter grid varying sigma, zeta, and p values
-parms_grid <- expand.grid(
-  sigma = c(0.01, 0.03, 0.07),
-  zeta = c(0.01, 0.03, 0.10),
-  p = c(0, 0.20, 0.50),
-  maxAge = 12,
-  alpha = 0.43,
-  betas = 0.05,
-  betaI = 0.16,
-  rhov = 0.59,
-  delta = 0.02,
-  eps = 0.095,
-  InitPrev = 0.32,
-  K = 1000,
-  c = 0.20,   
-  g = 1,
-  Se = 0.98,
-  Sp = 0.99
+l <- list(
+  IntBLN = res_BLA,
+  ExtBLN = res_BLB,
+  IntBLY = res_BioS,
+  IntTNN = res_TNA,
+  ExtTNN = res_TNB,
+  IntTNY = res_TNBioS,
+  IntTCN = res_TNC_A,
+  ExtTCN = res_TNC_B,
+  IntTCY = res_TNC_BioS
 )
 
-run_scenario <- function(parms, scenario_name) {
-  res <- proc_res("PremResultsAge", parms, plot_name = paste(scenario_name, "_plot.png"))
-  return(res)
-}
-
+# Plot
+ggplot(data, aes(x = time, y = Prev,
+                 color = Treatment,
+                 linetype = HerdManagement,
+                 shape = BioSecurity)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Seroprevalence Over Time by Management, Treatment, and Biosecurity",
+    x = "Years",
+    y = "Seroprevalence (%)"
+  ) +
+  theme_minimal()
