@@ -31,7 +31,7 @@ schedule<- function(poplist, maxtime, parms, rhoh, rhoCol) {
     et
   }
 
-  infected<- function(ii, maxtime, parms, age) {
+  infected<- function(ii, maxtime, parms, rhoh, rhoCol, age) {
     et<- NULL
     if(age == 1) rate <- rhoh + parms$sigma + rhoCol else rate <- rhoh + parms$sigma 
     etime<- -log(runif(1))/rate
@@ -69,7 +69,7 @@ schedule<- function(poplist, maxtime, parms, rhoh, rhoCol) {
     ind<- poplist[[i]]
     switch(ind$cat,
            S = {
-             etype<- infected(i, maxtime, parms, ind$age)
+             etype<- infected(i, maxtime, parms, rhoh, rhoCol, ind$age)
              if(!is.null(etype)) elist[[length(elist)+1]]<- etype
              
              etype<- culling(i, maxtime, ind$cat, parms)
