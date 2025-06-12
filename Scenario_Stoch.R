@@ -6,7 +6,7 @@ source(file.path("Scripts","Proc_Neo_IBM.R"))
 Se=0.98
 Sp=0.99
 
-intro <- 0; nsim <- 100; tot.time<- 10; dir.in <- "Results_Stochastic"; alpha=0.43
+intro <- 0; nsim <- 10; tot.time<- 10; dir.in <- "Results_Stochastic"; alpha=0.43
 #### Do Nothing ####
 parms <- expand.grid(list(maxAge=12,
                           alpha=0.43,
@@ -74,7 +74,8 @@ parms <- expand.grid(list(maxAge=12,
 
 system.time(
   TC <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
-                    root_name="TC", ncore="auto")
+                    root_name="TC", ncore=1 #"auto")
+  )
 )
 
 
@@ -107,4 +108,6 @@ system.time(
 
 
 debug(proc_IBM)
-
+debug(Neo.ibm)
+debug(schedule)
+debug(infected)
