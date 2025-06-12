@@ -5,7 +5,7 @@ source(file.path("Scripts","Proc_Neo_IBM.R"))
 
 alpha <- 0.39
 InitPrev <- 0.32
-zeta_col <- 0.2/alpha
+zeta_col <- 0.2
 zeta_env <- 0.03/alpha
 rhov <- 0.43
 betas <- 0.05
