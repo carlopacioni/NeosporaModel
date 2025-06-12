@@ -5,7 +5,7 @@ source(file.path("Scripts","Proc_Neo_IBM.R"))
 
 alpha <- 0.39
 InitPrev <- 0.32
-zeta_col <- 0.2
+zeta_col <- 0.2/alpha
 zeta_env <- 0.03/alpha
 rhov <- 0.43
 betas <- 0.05
@@ -37,7 +37,7 @@ parms_BLA <- expand.grid(list(maxAge=12,
                           Sp=Sp))
 
 system.time(
-  BLA<- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+  BLA<- proc_IBM(dir.in, intro, nsim, tot.time, parms_BLA, ageI=2, 
                   root_name="BLA", ncore="auto")
 )
 
@@ -60,7 +60,7 @@ parms_BLB <- expand.grid(list(maxAge=12,
                               Sp=Sp))
 
 system.time(
-  BLB<- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+  BLB<- proc_IBM(dir.in, intro, nsim, tot.time, parms_BLB, ageI=2, 
                  root_name="BLB", ncore="auto")
 )
 
@@ -83,7 +83,7 @@ parms_BioS <- expand.grid(list(maxAge=12,
                               Sp=Sp))
 
 system.time(
-  BioS<- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+  BioS<- proc_IBM(dir.in, intro, nsim, tot.time, parms_BioS, ageI=2, 
                  root_name="BioS", ncore="auto")
 )
 
@@ -177,7 +177,7 @@ parms_TCA <- expand.grid(list(maxAge=12,
                               Sp=Sp))
 
 system.time(
-  TCA <- proc_IBM(dir.in, intro, nsim, tot.time, parms, ageI=2, 
+  TCA <- proc_IBM(dir.in, intro, nsim, tot.time, parms_TCA, ageI=2, 
                     root_name="TCA", ncore="auto")
 )
 
